@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إرسال حملة | Smart Push Pro</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .split-view { display: grid; grid-template-columns: 1fr 350px; gap: 50px; }
+        @media (max-width: 1200px) { .split-view { grid-template-columns: 1fr; } }
+        
+        input, textarea { 
+            background: rgba(255,255,255,0.03) !important; 
+            border: 1px solid var(--border) !important;
+            border-radius: 18px !important;
+            padding: 18px !important;
+            color: white !important;
+        }
+        input:focus { border-color: var(--primary) !important; box-shadow: 0 0 20px rgba(99, 102, 241, 0.2) !important; }
+
+        .phone-container {
+            position: sticky; top: 40px;
+            perspective: 1000px;
+        }
+        .phone-frame {
+            width: 320px; height: 650px;
+            background: #000; border: 10px solid #1e293b; border-radius: 50px;
+            padding: 25px; box-shadow: 0 50px 100px rgba(0,0,0,0.6), 0 0 30px rgba(99, 102, 241, 0.1);
+            transform: rotateY(-10px) rotateX(5px);
+            transition: 0.5s;
+        }
+        .phone-frame:hover { transform: rotateY(0) rotateX(0); }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo"><i class="fas fa-atom fa-spin"></i> <span>SMART PUSH</span></div>
+        <a href="index.html" class="nav-item"><i class="fas fa-th-large"></i> نظرة عامة</a>
+        <a href="send.html" class="nav-item active"><i class="fas fa-paper-plane"></i> إرسال حملة</a>
+        <a href="templates.html" class="nav-item"><i class="fas fa-magic"></i> مكتبة القوالب</a>
+        <a href="sites.html" class="nav-item"><i class="fas fa-satellite-dish"></i> المواقع النشطة</a>
+        <div class="theme-btn" onclick="toggleTheme()">
+            <i class="fas fa-adjust" id="theme-icon"></i>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <h2 style="background: linear-gradient(to left, #fff, var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">إطلاق حملة جديدة ✨</h2>
+
+        <div class="split-view">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 20px; align-items: center; gap: 10px;">
+                    <div style="display: flex; align-items: center; gap: 10px; flex: 1;">
+                        <h4 style="color: var(--primary);">البحث السريع ⚡</h4>
+                        <input type="text" id="quick-search" placeholder="ابحث..." 
+                               style="width: 120px; padding: 8px 12px !important; font-size: 0.75rem !important; margin:0 !important;" 
+                               oninput="filterQuickTemplates()">
+                    </div>
+                    <button class="btn btn-primary" onclick="openTemplatesModal()" style="padding: 8px 15px; font-size: 0.75rem;">
+                        <i class="fas fa-folder-open"></i> تصفح الكل
+                    </button>
+                </div>
+                
+                <div id="quick-templates-box" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; margin-bottom: 30px;">
+                    <!-- سيتم ملؤه بواسطة JS -->
+                </div>
+
+                <hr style="border: none; border-top: 1px solid var(--border); margin-bottom: 30px;">
+                
+                <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+                    <h4 style="color: var(--secondary);">تجهيز الإشعار</h4>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn" style="background: rgba(99, 102, 241, 0.1); color: var(--primary); padding: 8px 15px; font-size: 0.8rem;" onclick="handleSaveTemplate()">حفظ كقالب</button>
+                        <button class="btn" style="background: rgba(239, 68, 68, 0.1); color: #ef4444; padding: 8px 15px; font-size: 0.8rem;" onclick="location.reload()">تفريغ</button>
+                    </div>
+                </div>
+                
+                <div style="display: grid; gap: 20px;">
+                    <input type="text" id="in-title" placeholder="عنوان الإشعار..." oninput="updatePreview()">
+                    <input type="text" id="in-icon" placeholder="رابط الأيقونة (شعار المتجر)..." oninput="updatePreview()">
+                    <textarea id="in-body" rows="4" placeholder="نص الرسالة التسويقية..." oninput="updatePreview()"></textarea>
+                    <input type="text" id="in-image" placeholder="رابط الصورة الكبيرة (اختياري)..." oninput="updatePreview()">
+                    <input type="text" id="in-url" placeholder="الرابط عند الضغط على الإشعار..." oninput="detectSocialMedia()">
+                    
+                    <button class="btn btn-primary" id="send-btn" onclick="handleSend()" style="width: 100%; justify-content: center; margin-top: 20px;">
+                        <i class="fas fa-bolt"></i> إرسال الحملة الآن
+                    </button>
+                </div>
+            </div>
+
+            <div class="phone-container">
+                <div class="phone-frame">
+                    <div style="width: 60px; height: 5px; background: #334155; border-radius: 10px; margin: 0 auto 30px;"></div>
+                    <div class="notif-box" style="background: rgba(255,255,255,0.9); border-radius: 25px; padding: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.2);">
+                        <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 10px;">
+                            <img id="pre-icon" src="https://cdn-icons-png.flaticon.com/512/1827/1827347.png" style="width: 35px; height: 35px; border-radius: 10px;">
+                            <div style="flex: 1;">
+                                <div style="font-size: 0.7rem; color: #666; font-weight: 700;">SMART PUSH • الآن</div>
+                                <div id="pre-title" style="font-weight: 900; font-size: 1rem; color: #000;">عنوان الإشعار</div>
+                            </div>
+                        </div>
+                        <div id="pre-body" style="font-size: 0.85rem; color: #333; line-height: 1.5;">محتوى الرسالة سيظهر هنا...</div>
+                        <img id="pre-image" src="" style="width: 100%; border-radius: 15px; margin-top: 15px; display: none; max-height: 160px; object-fit: cover; border: 1px solid rgba(0,0,0,0.05);">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="templates-modal" class="modal-overlay" onclick="if(event.target == this) closeTemplatesModal()">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>مكتبة القوالب الكاملة 📚</h3>
+                <i class="fas fa-times close-modal" onclick="closeTemplatesModal()"></i>
+            </div>
+            <div id="modal-templates-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px;">
+                <!-- سيتم ملؤه بواسطة JS -->
+            </div>
+        </div>
+    </div>
+
+    <script src="js/dashboard.js"></script>
+    <script>
+        async function detectSocialMedia() {
+            const urlInput = document.getElementById('in-url');
+            const imgInput = document.getElementById('in-image');
+            const url = urlInput.value.trim();
+
+            if (url.includes('instagram.com') || url.includes('tiktok.com') || url.includes('youtube.com')) {
+                showToast('🔍 جاري استخراج الصورة عبر الخادم الخاص...');
+                try {
+                    const response = await fetch(`${FUNCTIONS_URL}/get-image`, {
+                        method: 'POST',
+                        headers: HEADERS,
+                        body: JSON.stringify({ url: url })
+                    });
+                    const result = await response.json();
+                    
+                    if (result.image) {
+                        imgInput.value = result.image;
+                        updatePreview();
+                        showToast('✨ تم جلب الصورة بنجاح!');
+                    } else {
+                        throw new Error('Image not found');
+                    }
+                } catch (e) {
+                    showToast('⚠️ الخادم لم يتمكن من جلب الصورة، يرجى وضعها يدوياً', 'error');
+                }
+            }
+        }
+
+        function openTemplatesModal() {
+            const modal = document.getElementById('templates-modal');
+            const grid = document.getElementById('modal-templates-grid');
+            const all = getAllTemplates();
+            grid.innerHTML = all.map(t => `
+                <div class="card" style="margin:0; padding: 15px; cursor: pointer; border-radius: 15px; border: 1px solid var(--border);" onclick="useQuickTemplate('${t.id}')">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <i class="${t.faIcon || 'fas fa-bell'}" style="color: var(--primary); font-size: 1.1rem;"></i>
+                        <span style="font-weight: 700; font-size: 0.8rem;">${t.title}</span>
+                    </div>
+                    <p style="font-size: 0.7rem; color: var(--text-dim); margin-top:5px;">${t.body.substring(0, 40)}...</p>
+                </div>
+            `).join('');
+            modal.style.display = 'flex';
+        }
+
+        function closeTemplatesModal() {
+            document.getElementById('templates-modal').style.display = 'none';
+        }
+        function updatePreview() {
+            const title = document.getElementById('in-title').value || 'عنوان الإشعار';
+            const body  = document.getElementById('in-body').value || 'محتوى الرسالة سيظهر هنا...';
+            const icon  = document.getElementById('in-icon').value;
+            const image = document.getElementById('in-image').value;
+
+            document.getElementById('pre-title').innerText = title;
+            document.getElementById('pre-body').innerText = body;
+
+            const iconEl = document.getElementById('pre-icon');
+            iconEl.src = icon || 'https://cdn-icons-png.flaticon.com/512/1827/1827347.png';
+
+            const imgEl = document.getElementById('pre-image');
+            if (image) { imgEl.src = image; imgEl.style.display = 'block'; }
+            else { imgEl.style.display = 'none'; }
+        }
+
+        async function handleSend() {
+            const btn = document.getElementById('send-btn');
+            const payload = {
+                title: document.getElementById('in-title').value,
+                message: document.getElementById('in-body').value,
+                icon: document.getElementById('in-icon').value,
+                image: document.getElementById('in-image').value,
+                url: document.getElementById('in-url').value
+            };
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-atom fa-spin"></i> جاري الإرسال...';
+            try { await sendNotification(payload); }
+            catch (e) { }
+            finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-bolt"></i> إرسال الحملة الآن';
+            }
+        }
+
+        function filterQuickTemplates() {
+            const query = document.getElementById('quick-search').value.toLowerCase();
+            const box = document.getElementById('quick-templates-box');
+            const all = getAllTemplates();
+            const filtered = all.filter(t => t.title.toLowerCase().includes(query)).slice(0, 4);
+            
+            box.innerHTML = filtered.map(t => `
+                <div class="nav-item" style="padding: 15px; margin:0; flex-direction: column; gap: 8px; font-size: 0.7rem; text-align: center; background: var(--card-bg); border: 1px solid var(--border);" onclick="useQuickTemplate('${t.id}')">
+                    <i class="${t.faIcon || 'fas fa-bell'}" style="font-size: 1.2rem; color: var(--primary);"></i>
+                    <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%;">${t.title}</span>
+                </div>
+            `).join('');
+        }
+
+        function useQuickTemplate(id) {
+            const t = getAllTemplates().find(x => x.id === id);
+            if (!t) return;
+            document.getElementById('in-title').value = t.title;
+            document.getElementById('in-body').value = t.body;
+            document.getElementById('in-icon').value = t.icon;
+            document.getElementById('in-url').value = t.url || '';
+            updatePreview();
+            closeTemplatesModal(); // إغلاق النافذة المنبثقة
+            showToast('تم تطبيق القالب! ✨');
+        }
+
+        function handleSaveTemplate() {
+            const template = {
+                title: document.getElementById('in-title').value,
+                body: document.getElementById('in-body').value,
+                icon: document.getElementById('in-icon').value,
+                url: document.getElementById('in-url').value
+            };
+            if (!template.title || !template.body) return showToast('يرجى ملء العنوان والنص لحفظ القالب', 'error');
+            saveCustomTemplate(template);
+            filterQuickTemplates();
+        }
+
+        window.onload = () => {
+            filterQuickTemplates();
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('title')) {
+                document.getElementById('in-title').value = urlParams.get('title');
+                document.getElementById('in-body').value = urlParams.get('body');
+                document.getElementById('in-icon').value = urlParams.get('icon');
+                document.getElementById('in-url').value = urlParams.get('url');
+                updatePreview();
+            }
+        };
+    </script>
+</body>
+</html>
