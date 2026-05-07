@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>دمج النظام | Smart Push Pro</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo"><i class="fas fa-atom fa-spin"></i> <span>SMART PUSH</span></div>
+        <a href="index.html" class="nav-item"><i class="fas fa-th-large"></i> نظرة عامة</a>
+        <a href="send.html" class="nav-item"><i class="fas fa-paper-plane"></i> إرسال حملة</a>
+        <a href="templates.html" class="nav-item"><i class="fas fa-magic"></i> مكتبة القوالب</a>
+        <a href="sites.html" class="nav-item"><i class="fas fa-satellite-dish"></i> المواقع النشطة</a>
+        <a href="integration.html" class="nav-item active"><i class="fas fa-terminal"></i> دمج النظام</a>
+        
+        <div class="theme-btn" onclick="toggleTheme()">
+            <i class="fas fa-adjust" id="theme-icon"></i>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <h2 style="background: linear-gradient(to left, #fff, var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">بوابة الدمج 🛠️</h2>
+
+        <div class="card" style="border-right: 5px solid var(--primary);">
+            <h3 style="margin-bottom: 20px;">كود الـ SDK الذكي</h3>
+            <p style="color: var(--text-dim); margin-bottom: 25px;">قم بنسخ الكود البرمجي التالي وضعه في موقعك لبدء استقبال المشتركين فوراً.</p>
+            
+            <div style="position: relative; background: #000; border-radius: 25px; padding: 30px; border: 1px solid var(--border);">
+                <pre id="code-snippet" style="color: #06b6d4; font-family: 'Courier New', Courier, monospace; font-size: 1rem; line-height: 1.6;">&lt;!-- Smart Push Pro SDK --&gt;
+&lt;script src="https://roba-nos.github.io/ul/public/push-sdk.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+  window.onload = () => {
+    PushNotificationTool.init({ 
+      autoAsk: true, 
+      showBell: true 
+    });
+  };
+&lt;/script&gt;</pre>
+                <button class="btn btn-primary" onclick="copyCode()" style="position: absolute; left: 20px; top: 20px; padding: 8px 20px; font-size: 0.8rem;">
+                    <i class="fas fa-copy"></i> نسخ
+                </button>
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+            <div class="card">
+                <h4 style="color: var(--primary); margin-bottom: 15px;">رابط الـ SDK</h4>
+                <code style="display: block; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 12px; font-size: 0.8rem; border: 1px solid var(--border);">https://roba-nos.github.io/ul/public/push-sdk.js</code>
+            </div>
+            <div class="card">
+                <h4 style="color: var(--secondary); margin-bottom: 15px;">Service Worker</h4>
+                <code style="display: block; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 12px; font-size: 0.8rem; border: 1px solid var(--border);">https://roba-nos.github.io/ul/public/sw.js</code>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/dashboard.js"></script>
+    <script>
+        function copyCode() {
+            const code = document.getElementById('code-snippet').innerText;
+            navigator.clipboard.writeText(code);
+            showToast('🚀 تم نسخ كود الدمج بنجاح!');
+        }
+    </script>
+</body>
+</html>

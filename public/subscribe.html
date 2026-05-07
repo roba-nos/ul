@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تفعيل الإشعارات</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .card {
+            background: #1e293b;
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 24px;
+            padding: 40px 30px;
+            text-align: center;
+            max-width: 380px;
+            width: 100%;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+        }
+        .bell-icon { font-size: 3rem; margin-bottom: 16px; animation: ring 1s ease infinite; }
+        @keyframes ring {
+            0%,100% { transform: rotate(-10deg); }
+            50% { transform: rotate(10deg); }
+        }
+        h2 { color: #f1f5f9; font-size: 1.3rem; margin-bottom: 10px; }
+        p { color: #94a3b8; font-size: 0.9rem; margin-bottom: 28px; line-height: 1.6; }
+        button {
+            background: linear-gradient(135deg, #6366f1, #ec4899);
+            color: white;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 14px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(99,102,241,0.4); }
+        button:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+        .success { color: #4ade80; font-size: 1.1rem; font-weight: 700; }
+    </style>
+</head>
+<body>
+    <div class="card" id="main-card">
+        <div class="bell-icon">🔔</div>
+        <h2>اشترك في الإشعارات</h2>
+        <p>اضغط على الزر أدناه لتفعيل الإشعارات واستقبال آخر الأخبار والتحديثات فوراً.</p>
+        <button id="sub-btn">تفعيل الإشعارات الآن ✅</button>
+    </div>
+
+    <!-- واجهة الإرشاد لمستخدمي إنستغرام/تيك توك -->
+    <div class="card" id="guide-card" style="display: none; border-top: 5px solid var(--secondary);">
+        <div style="font-size: 3rem; margin-bottom: 20px;">📲</div>
+        <h2 style="color: #fbbf24;">خطوة واحدة متبقية!</h2>
+        <p style="text-align: right; font-size: 0.85rem;">متصفح إنستغرام/تيك توك يقيد الاشتراك. لتفعيل الإشعارات:</p>
+        <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 15px; text-align: right; margin-bottom: 20px;">
+            <p style="margin-bottom: 8px; color: #fff;">1️⃣ اضغط على النقاط الثلاثة <b>(•••)</b> في الأعلى.</p>
+            <p style="color: #fff;">2️⃣ اختر <b>"الفتح في متصفح النظام"</b> أو <b>"Open in Safari"</b>.</p>
+        </div>
+        <div class="bell-icon" style="animation: bounce 2s infinite;">👇</div>
+    </div>
+
+    <style>
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+    </style>
+
+    <script>
+        // رابط Supabase Edge Functions
+        const FUNCTIONS_URL = 'https://rtcnheqqzvvdbrdmpzsr.supabase.co/functions/v1';
+        const ANON_KEY = 'sb_publishable_urB1hflL5FDePpONRZ--EA_5b8jmxuz';
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const sourceDomain = urlParams.get('domain') || 'unknown';
+
+        document.getElementById('sub-btn').onclick = async function() {
+            try {
+                // 1. فحص الدعم الشامل (خاصة للأيفون)
+                const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+                const supportsPush = ('serviceWorker' in navigator) && ('PushManager' in window);
+                const supportsNotification = ('Notification' in window);
+
+                if (!supportsPush || !supportsNotification) {
+                    document.getElementById('main-card').style.display = 'none';
+                    document.getElementById('guide-card').style.display = 'block';
+                    // تحديث نص الإرشاد إذا كان أيفون وسفاري ولكن لا يدعم (يحتاج إضافة للشاشة الرئيسية)
+                    if (isIOS) {
+                        document.getElementById('guide-card').innerHTML = `
+                            <div style="font-size: 3rem; margin-bottom: 20px;">📲</div>
+                            <h2 style="color: #fbbf24;">خطوة للأيفون!</h2>
+                            <p style="text-align: right; font-size: 0.85rem; color:#fff;">لتفعيل الإشعارات على الأيفون، يجب إضافة الموقع للشاشة الرئيسية:</p>
+                            <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 15px; text-align: right; margin-bottom: 20px;">
+                                <p style="margin-bottom: 8px; color: #fff;">1️⃣ اضغط على زر <b>المشاركة (Share)</b> في أسفل المتصفح <img src="https://cdn-icons-png.flaticon.com/512/702/702132.png" width="20">.</p>
+                                <p style="color: #fff;">2️⃣ اختر <b>"إضافة للشاشة الرئيسية"</b> أو <b>"Add to Home Screen"</b>.</p>
+                                <p style="color: #fff; margin-top:8px;">3️⃣ افتح الموقع من الشاشة الرئيسية واشترك.</p>
+                            </div>
+                        `;
+                    }
+                    return;
+                }
+
+                this.disabled = true;
+                this.innerText = 'جاري التفعيل...';
+
+                // 2. طلب الإذن (طريقة متوافقة مع سفاري)
+                let permission = Notification.permission;
+                if (permission === 'default') {
+                    permission = await Notification.requestPermission();
+                }
+                if (permission !== 'granted') {
+                    alert('يجب الموافقة على الإشعارات لكي تعمل!');
+                    this.disabled = false;
+                    this.innerText = 'تفعيل الإشعارات الآن ✅';
+                    return;
+                }
+
+                // 2. تسجيل Service Worker (استخدام الرابط المباشر الكامل)
+                const swUrl = 'https://roba-nos.github.io/ul/public/sw.js';
+                const reg = await navigator.serviceWorker.register(swUrl, { scope: '/ul/public/' });
+
+                // 3. الحصول على VAPID Public Key من Supabase
+                const keyRes = await fetch(`${FUNCTIONS_URL}/vapid-key`, {
+                    headers: { 'apikey': ANON_KEY }
+                });
+                const { publicKey } = await keyRes.json();
+
+                // 4. الاشتراك
+                const sub = await reg.pushManager.subscribe({
+                    userVisibleOnly: true,
+                    applicationServerKey: urlBase64ToUint8Array(publicKey)
+                });
+
+                // 5. حفظ الاشتراك في Supabase
+                await fetch(`${FUNCTIONS_URL}/subscribe`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'apikey': ANON_KEY
+                    },
+                    body: JSON.stringify({ subscription: sub.toJSON(), domain: sourceDomain })
+                });
+
+                document.querySelector('.card').innerHTML = `
+                    <div style="padding:20px">
+                        <div style="font-size:3rem">🎉</div>
+                        <p class="success" style="color:#4ade80;font-size:1.2rem;font-weight:700;margin-top:16px">تم التفعيل بنجاح!</p>
+                        <p style="color:#94a3b8;margin-top:8px">ستصلك الإشعارات الآن تلقائياً.</p>
+                    </div>
+                `;
+                setTimeout(() => window.close(), 3000);
+
+            } catch (err) {
+                alert('حدث خطأ: ' + err.message);
+                this.disabled = false;
+                this.innerText = 'تفعيل الإشعارات الآن ✅';
+            }
+        };
+
+        function urlBase64ToUint8Array(b64) {
+            const pad = '='.repeat((4 - b64.length % 4) % 4);
+            const base64 = (b64 + pad).replace(/-/g, '+').replace(/_/g, '/');
+            const raw = atob(base64);
+            return Uint8Array.from([...raw].map(c => c.charCodeAt(0)));
+        }
+    </script>
+</body>
+</html>
