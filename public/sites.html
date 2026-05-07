@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>المواقع النشطة | Smart Push Pro</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo"><i class="fas fa-atom fa-spin"></i> <span>SMART PUSH</span></div>
+        <a href="index.html" class="nav-item"><i class="fas fa-th-large"></i> نظرة عامة</a>
+        <a href="send.html" class="nav-item"><i class="fas fa-paper-plane"></i> إرسال حملة</a>
+        <a href="templates.html" class="nav-item"><i class="fas fa-magic"></i> مكتبة القوالب</a>
+        <a href="sites.html" class="nav-item active"><i class="fas fa-satellite-dish"></i> المواقع النشطة</a>
+        <a href="integration.html" class="nav-item"><i class="fas fa-terminal"></i> دمج النظام</a>
+        
+        <div class="theme-btn" onclick="toggleTheme()">
+            <i class="fas fa-adjust" id="theme-icon"></i>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <h2 style="background: linear-gradient(to left, #fff, var(--primary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">خريطة المواقع 🌐</h2>
+
+        <div class="card" style="padding: 0; overflow: hidden;">
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead style="background: rgba(255,255,255,0.05);">
+                    <tr>
+                        <th style="padding: 20px; text-align: right; color: var(--primary);">الموقع الإلكتروني</th>
+                        <th style="padding: 20px; text-align: center; color: var(--primary);">المشتركين</th>
+                        <th style="padding: 20px; text-align: center; color: var(--primary);">الحالة</th>
+                    </tr>
+                </thead>
+                <tbody id="sites-list">
+                    <!-- Loaded by JS -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="js/dashboard.js"></script>
+    <script>
+        async function loadSites() {
+            const data = await fetchStats();
+            const tbody = document.getElementById('sites-list');
+            tbody.innerHTML = '';
+            
+            for (const domain in (data.sites || {})) {
+                tbody.innerHTML += `
+                    <tr style="border-bottom: 1px solid var(--border);">
+                        <td style="padding: 20px; font-weight: 700; font-size: 1rem;">
+                            <i class="fas fa-link" style="color: var(--text-dim); margin-left: 10px;"></i> ${domain}
+                        </td>
+                        <td style="padding: 20px; text-align: center;">
+                            <span style="background: rgba(99, 102, 241, 0.1); color: var(--primary); padding: 5px 15px; border-radius: 10px; font-weight: 900;">
+                                ${data.sites[domain]}
+                            </span>
+                        </td>
+                        <td style="padding: 20px; text-align: center;">
+                            <span style="color: #22c55e; font-size: 0.8rem;">
+                                <i class="fas fa-circle-check"></i> نشط
+                            </span>
+                        </td>
+                    </tr>`;
+            }
+        }
+        window.onload = loadSites;
+    </script>
+</body>
+</html>
